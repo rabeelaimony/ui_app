@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ui_app/screens/login_screen.dart';
-import 'package:ui_app/screens/home_screen.dart';
-import 'package:ui_app/services/app_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,272 +11,115 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  late AnimationController _logoController;
-  late AnimationController _textController;
-  late AnimationController _backgroundController;
-  late Animation<double> _logoAnimation;
-  late Animation<double> _textAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _backgroundAnimation;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
 
-    _logoController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+    _controller = AnimationController(
       vsync: this,
-    );
+      duration: const Duration(seconds: 4),
+    )..repeat();
 
-    _textController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    _backgroundController = AnimationController(
-      duration: const Duration(milliseconds: 5000),
-      vsync: this,
-    );
-
-    _logoAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
-    );
-
-    _textAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
-
-    _backgroundAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _backgroundController, curve: Curves.easeInOut),
-    );
-
-    _startAnimations();
-    _backgroundController.repeat();
+    _navigateLater();
   }
 
-  void _startAnimations() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    _logoController.forward();
-
-    await Future.delayed(const Duration(milliseconds: 800));
-    _textController.forward();
-
-    await Future.delayed(const Duration(milliseconds: 3000));
-    _navigateToNextScreen();
-  }
-
-  void _navigateToNextScreen() async {
-    // مدة الانتظار قبل الانتقال (هنا 5 ثواني)
-    await Future.delayed(const Duration(seconds: 0));
-
+  void _navigateLater() async {
+    await Future.delayed(const Duration(seconds: 15));
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return const LoginScreen();
+        pageBuilder: (_, __, ___) => const LoginScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutBack,
+              ),
+              child: child,
+            ),
+          );
         },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 500),
+        transitionDuration: const Duration(milliseconds: 200),
       ),
     );
   }
 
   @override
   void dispose() {
-    _logoController.dispose();
-    _textController.dispose();
-    _backgroundController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: AnimatedBuilder(
-        animation: _backgroundAnimation,
+        animation: _controller,
         builder: (context, child) {
+          final progress = _controller.value;
+
           return Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
+                colors: [
+                  Color(0xFF1B5E20), // أخضر داكن جداً
+                  Color(0xFF2E7D32), // أخضر داكن
+                  Color(0xFF388E3C), // أخضر متوسط
+                  Color(0xFF66BB6A), // أخضر مونسي
+                  Colors.white, // لمسة بيضاء
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: [0.0, 0.2, 0.45, 0.75, 1.0],
               ),
             ),
             child: Stack(
+              alignment: Alignment.center,
               children: [
-                // Internet-themed animated background
-                ...List.generate(25, (index) {
-                  final double animationValue = _backgroundAnimation.value;
-                  final double screenWidth = MediaQuery.of(context).size.width;
-                  final double screenHeight = MediaQuery.of(
-                    context,
-                  ).size.height;
+                // 🌐 الشبكة
+                CustomPaint(size: size, painter: GridPainter(progress)),
 
-                  final double baseX = (index % 5) * (screenWidth / 5);
-                  final double baseY = (index ~/ 5) * (screenHeight / 6);
+                // ✨ نجوم ولمعان
+                CustomPaint(size: size, painter: StarsPainter(progress)),
 
-                  // Smooth floating animation
-                  final double offsetX =
-                      20 * sin(animationValue * 2 * pi + index * 0.3);
-                  final double offsetY =
-                      15 * cos(animationValue * 2 * pi + index * 0.5);
+                // 🌊 موجات Ripples
+                ...List.generate(3, (i) {
+                  final rippleProgress = ((progress + i * 0.3) % 1.0);
+                  final radius = 120.0 + (rippleProgress * 150);
+                  final opacity = (1 - rippleProgress).clamp(0.0, 1.0);
 
-                  return Positioned(
-                    left: baseX + offsetX,
-                    top: baseY + offsetY,
-                    child: Transform.rotate(
-                      angle: animationValue * 2 * pi * 0.1 + index * 0.2,
-                      child: Opacity(
-                        opacity:
-                            0.08 + 0.04 * sin(animationValue * 2 * pi + index),
-                        child: Icon(
-                          [
-                            Icons.wifi,
-                            Icons.router_outlined,
-                            Icons.cloud_outlined,
-                            Icons.signal_cellular_alt,
-                            Icons.cast_connected,
-                          ][index % 5],
-                          color: Colors.white,
-                          size:
-                              22 +
-                              6 * sin(animationValue * 2 * pi + index * 0.7),
-                        ),
+                  return Container(
+                    width: radius * 2,
+                    height: radius * 2,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.greenAccent.withOpacity(0.35 * opacity),
+                        width: 2,
                       ),
                     ),
                   );
                 }),
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo Animation
-                      AnimatedBuilder(
-                        animation: _logoAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _logoAnimation.value,
-                            child: Container(
-                              width: 200,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'assets/images/logo.Png', // ضع مسار صورة اللوغو هنا
-                                  fit: BoxFit.contain,
-                                  width: 150,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+
+                // 🪩 اللوغو بخلفية شفافة وأكبر
+                Transform.scale(
+                  scale: 1.0 + (sin(progress * 2 * pi) * 0.05),
+                  child: ClipOval(
+                    child: Container(
+                      width: 300, // أكبر
+                      height: 300,
+                      padding: const EdgeInsets.all(30),
+                      color: Colors.transparent,
+                      child: Image.asset(
+                        "assets/images/logo.png",
+                        fit: BoxFit.contain,
                       ),
-
-                      const SizedBox(height: 40),
-
-                      // Text Animation
-                      SlideTransition(
-                        position: _slideAnimation,
-                        child: FadeTransition(
-                          opacity: _textAnimation,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 15),
-
-                              // النص الجديد مع الجملة القديمة
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    const Text(
-                                      'أول مزود إنترنت خاص في سوريا',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const SizedBox(width: 5),
-                                        const Text(
-                                          ' مع آية حياتك ONLINE',
-                                          style: TextStyle(
-                                            color: Color.fromARGB(
-                                              255,
-                                              8,
-                                              150,
-                                              13,
-                                            ), // أخضر
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const Icon(
-                                          Icons.wifi,
-                                          color: Color.fromARGB(
-                                            255,
-                                            18,
-                                            218,
-                                            25,
-                                          ), // أخضر
-                                          size: 20,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 80),
-
-                      // Loading Indicator
-                      FadeTransition(
-                        opacity: _textAnimation,
-                        child: const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                          strokeWidth: 3,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -288,4 +129,62 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
+
+/// 🎨 الشبكة (Cyber Grid)
+class GridPainter extends CustomPainter {
+  final double progress;
+  GridPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..strokeWidth = 1;
+
+    const step = 40.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(
+        Offset(x + (progress * 10), 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(
+        Offset(0, y + (progress * 10)),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant GridPainter oldDelegate) => true;
+}
+
+/// ✨ نجوم ولمعان
+class StarsPainter extends CustomPainter {
+  final double progress;
+  StarsPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = Random(42);
+    final paint = Paint();
+
+    for (int i = 0; i < 50; i++) {
+      final dx = random.nextDouble() * size.width;
+      final dy = random.nextDouble() * size.height;
+      final radius = random.nextDouble() * 1.5 + 0.5;
+
+      final twinkle = (sin(progress * 2 * pi + i) + 1) / 2;
+      paint.color = Colors.white.withOpacity(0.3 + twinkle * 0.7);
+
+      canvas.drawCircle(Offset(dx, dy), radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant StarsPainter oldDelegate) => true;
 }

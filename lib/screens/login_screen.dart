@@ -89,6 +89,8 @@ class _LoginScreenState extends State<LoginScreen>
 
     return Scaffold(
       body: Container(
+        height: double.infinity,
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -126,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         child: Center(
                           child: Image.asset(
-                            'assets/images/logo.Png', // ضع مسار صورة اللوغو هنا
+                            'assets/images/logo.png', // ضع مسار صورة اللوغو هنا
                             fit: BoxFit.contain,
                             width: 150,
                           ),

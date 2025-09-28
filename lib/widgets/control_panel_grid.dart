@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:ui_app/screens/settings_screen.dart';
 import 'package:ui_app/services/app_service.dart';
 
@@ -10,111 +11,112 @@ class ControlPanelGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final neonGreen = const Color(0xFF32FF7E);
 
     return GridView.count(
-      crossAxisCount: 3,
+      crossAxisCount: 4,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.1,
+      childAspectRatio: 0.85,
       children: [
         _buildControlItem(
           context: context,
-          icon: Icons.receipt_long,
-          title: isArabic ? 'بيانات الحساب' : 'Account Data',
-          color: Colors.blue,
+          icon: Icons.swap_horiz,
+          title: isArabic ? 'بيانات الاستهلاك' : 'Usage Data',
+          color: neonGreen,
           onTap: () => _showAccountData(context),
         ),
         _buildControlItem(
           context: context,
           icon: Icons.bar_chart,
           title: isArabic ? 'بيانات الدخول' : 'Login Data',
-          color: Colors.green,
+          color: neonGreen,
           onTap: () => _showLoginData(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.receipt_long,
+          icon: Icons.receipt_outlined,
           title: isArabic ? 'البيان المالي' : 'Financial Statement',
-          color: Colors.orange,
+          color: neonGreen,
           onTap: () => _showFinancialStatement(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.credit_card,
+          icon: Icons.credit_card_outlined,
           title: isArabic ? 'شحن الحساب' : 'Recharge Account',
-          color: Colors.purple,
+          color: neonGreen,
           onTap: () => _showRechargeAccount(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.account_circle_outlined,
+          icon: Icons.refresh,
           title: isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
-          color: Colors.teal,
+          color: neonGreen,
           onTap: () => _showChangeAccountType(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.cloud_download,
+          icon: Icons.push_pin,
           title: isArabic ? 'Static IP' : 'Static IP',
-          color: Colors.indigo,
+          color: neonGreen,
           onTap: () => _showStaticIP(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.extension,
-          title: isArabic ? 'تمديد صلاحية' : 'Extend Validity',
-          color: Colors.red,
-          onTap: () => _showExtendValidity(context),
+          icon: Icons.lock_outline,
+          title: isArabic ? 'تغيير كلمة السر' : 'Change Password',
+          color: neonGreen,
+          onTap: () => _showChangePassword(context),
         ),
         _buildControlItem(
           context: context,
           icon: Icons.speed,
-          title: isArabic ? 'تعديل السرعة' : 'Speed Adjustment',
-          color: Colors.cyan,
+          title: isArabic ? 'تحويل السرعة' : 'Speed Conversion',
+          color: neonGreen,
           onTap: () => _showSpeedAdjustment(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.warning,
-          title: isArabic ? 'تجميد الحساب' : 'Suspend Account',
-          color: Colors.deepOrange,
+          icon: Icons.error_outline,
+          title: isArabic ? 'تجميد الحساب' : 'Freeze Account',
+          color: neonGreen,
           onTap: () => _showSuspendAccount(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.lock_open,
-          title: isArabic ? 'فك التجميد' : 'Unfreeze Account',
-          color: Colors.pink,
-          onTap: () => _showUnfreezeAccount(context),
-        ),
-        _buildControlItem(
-          context: context,
-          icon: Icons.add_circle,
-          title: isArabic ? 'شحن ترافيك إضافي' : 'Traffic Top-up',
-          color: Colors.lime,
+          icon: Icons.north_east,
+          title: isArabic ? 'شحن ترافيك إضافي' : 'Additional Traffic',
+          color: neonGreen,
           onTap: () => _showTrafficTopup(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.data_usage,
+          icon: Icons.add_box_outlined,
           title: isArabic ? 'تمديد ترافيك' : 'Extend Traffic',
-          color: Colors.brown,
+          color: neonGreen,
           onTap: () => _showExtendTraffic(context),
         ),
         _buildControlItem(
           context: context,
+          icon: Icons.auto_fix_high,
+          title: isArabic ? 'تمديد المالية' : 'Financial Extension',
+          color: neonGreen,
+          onTap: () => _showExtendFinancial(context),
+        ),
+        _buildControlItem(
+          context: context,
           icon: Icons.power_settings_new,
-          title: isArabic ? 'إيقاف الحساب' : 'Deactivate Account',
-          color: Colors.grey,
+          title: isArabic ? 'إيقاف البوابة' : 'Gateway Off',
+          color: neonGreen,
           onTap: () => _showDeactivateAccount(context),
         ),
         _buildControlItem(
           context: context,
-          icon: Icons.tv,
+          icon: Icons.tv_outlined,
           title: isArabic ? 'IPTV' : 'IPTV',
-          color: Colors.deepPurple,
+          color: neonGreen,
           onTap: () => _showIPTV(context),
         ),
       ],
@@ -128,41 +130,42 @@ class ControlPanelGrid extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF2D2D2D) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark
+              ? Border.all(color: color.withValues(alpha: 0.3), width: 1)
+              : null,
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
+            Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 11,
+                style: TextStyle(
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -259,23 +262,23 @@ class ControlPanelGrid extends StatelessWidget {
     );
   }
 
-  void _showExtendValidity(BuildContext context) {
+  void _showChangePassword(BuildContext context) {
     _showFeatureDialog(
       context,
-      title: isArabic ? 'تمديد صلاحية' : 'Extend Validity',
+      title: isArabic ? 'تغيير كلمة السر' : 'Change Password',
       content: isArabic
-          ? 'تمديد صلاحية اشتراكك الحالي'
-          : 'Extend the validity of your current subscription',
+          ? 'تغيير كلمة مرور حسابك لضمان الأمان'
+          : 'Change your account password for security',
     );
   }
 
-  void _showUnfreezeAccount(BuildContext context) {
+  void _showExtendFinancial(BuildContext context) {
     _showFeatureDialog(
       context,
-      title: isArabic ? 'فك التجميد' : 'Unfreeze Account',
+      title: isArabic ? 'تمديد المالية' : 'Financial Extension',
       content: isArabic
-          ? 'إلغاء تجميد حسابك المعلق'
-          : 'Unfreeze your suspended account',
+          ? 'تمديد الرصيد المالي وإضافة مبالغ إضافية'
+          : 'Extend financial balance and add additional amounts',
     );
   }
 
